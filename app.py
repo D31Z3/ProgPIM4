@@ -70,6 +70,18 @@ def excluir_colaborador(colaborador_id):
     flash('Colaborador excluído com sucesso!')  # Adicione uma mensagem de sucesso
     return redirect(url_for('colaborador'))  # Redireciona para a página de colaboradores
 
+@app.route('/confirmar_exclusao/<int:colaborador_id>', methods=['GET', 'POST'])
+def confirmar_exclusao(colaborador_id):
+    colaborador = Colaborador.query.get_or_404(colaborador_id)
+    if request.method == 'POST':
+        # Se o usuário confirmar a exclusão, deletamos o colaborador
+        db.session.delete(colaborador)
+        db.session.commit()
+        flash('Colaborador excluído com sucesso!', 'success')  # Mensagem de sucesso
+        return redirect(url_for('colaborador'))  # Redireciona para a página de colaboradores
+    
+    # Renderiza a página de confirmação
+    return render_template('colaborador/confirmar_exclusao.html', colaborador=colaborador)
 
 ####################################################################
 #PROGRAMAÇÃO DO LOGIN#
