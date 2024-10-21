@@ -58,7 +58,7 @@ def editar_colaborador(colaborador_id):
         colaborador.nome = request.form['nome']
         colaborador.email = request.form['email']
         db.session.commit()
-        return redirect(url_for('editar_colaborador', colaborador_id=colaborador.id)) 
+        return redirect(url_for('colaborador', colaborador_id=colaborador.id)) 
         
     return render_template('colaborador/item_Colaborador.html', colaborador=colaborador)
 
