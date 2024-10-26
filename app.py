@@ -98,6 +98,8 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
+        # Hash da senha
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
         # Cria um novo usuário
@@ -107,6 +109,7 @@ def register():
 
         flash('Usuário registrado com sucesso!', 'success')
         return redirect(url_for('login'))
+    
     return render_template('cripto/register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -117,20 +120,21 @@ def login():
 
         # Busca o usuário no banco de dados
         usuario = Usuario.query.filter_by(username=username).first()
+        print(f"Usuário encontrado: {usuario}")  # Debug
+
+        # Verifica se o usuário existe e se a senha está correta
         if usuario and bcrypt.check_password_hash(usuario.password, password):
-            session['user_id'] = usuario.id
+            session['user_id'] = usuario.id  # Armazena o ID do usuário na sessão
             flash('Login realizado com sucesso!', 'success')
-            return redirect(url_for('home.html'))
+            return redirect(url_for('home'))  # Redireciona para a rota "home"
         else:
             flash('Usuário ou senha incorretos.', 'danger')
+            print("Usuário ou senha incorretos.")  # Debug
+
     return render_template('cripto/login.html')
 
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        flash('Você precisa estar logado para acessar essa página.', 'warning')
-        return redirect(url_for('login'))
-    return 'Bem-vindo ao painel!'
+
+
 
 ###################################################################################################
 #Programação da home
