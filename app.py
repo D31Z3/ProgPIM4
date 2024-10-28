@@ -1,11 +1,15 @@
-from flask import Flask, render_template, request, redirect, flash, url_for, session
-from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secreto'  # Defina uma chave secreta única
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc://JOAOHERMENEGILD/FazendaUrbanaLotus?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc://JOAOHERMENEGILD/FazendaUrbanaLotus?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' # Test em memória
+
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -91,7 +95,7 @@ def adicionar_producao():  # Atualizando a função
         nome = request.form['nome']
         fornecedor = request.form['fornecedor']
         quantidade = request.form['quantidade']
-        data = request.form['data']
+        data = datetime.strptime(request.form['data'],'%Y-%m-%d').date()
         preco = request.form['preco']
 
         # Validação básica
@@ -113,20 +117,20 @@ def adicionar_producao():  # Atualizando a função
         return redirect('/producao')  # Atualizando o redirecionamento
 
 
-@app.route('/editar/<int:producao_id>', methods=['GET', 'POST'])
+@app.route('/editar_producao/<int:producao_id>', methods=['POST'])
 def editar_producao(producao_id):
     producao = Producao.query.get_or_404(producao_id)
     if request.method == 'POST':
         producao.nome = request.form['nome']
         producao.fornecedor = request.form['fornecedor']
         producao.quantidade = request.form['quantidade']
-        producao.data = request.form['data']
+        producao.data = datetime.strptime(request.form['data'],'%Y-%m-%d').date()
         producao.preco = request.form['preco']
         db.session.commit()
         return redirect(url_for('producao', producao_id = producao.id))  # Redireciona para a lista de produções
 
 
-@app.route('/excluir/<int:producao_id>', methods=['POST'])
+@app.route('/excluir_producao/<int:producao_id>', methods=['POST'])
 def excluir_producao(producao_id):
     try:
         producao = Producao.query.get_or_404(producao_id)
